@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "dlfcn.h": "c",
+        "julia_init.h": "c",
+        "string": "cpp",
+        "ostream": "cpp"
+    }
+}
