@@ -3,6 +3,8 @@ Pkg.add("Distributions")
 Pkg.add("StatsBase")
 Pkg.add("CSV")
 Pkg.add("DataFrames")
+Pkg.add("Plots")
+Pkg.add("MLDatasets")
 
 using Test
 using LinearAlgebra
@@ -11,6 +13,8 @@ using Distributions
 using StatsBase
 using CSV
 using DataFrames
+using Plots
+using MLDatasets
 
 # test_dubcmp.jl
 include("../DubCmp.jl")
@@ -224,4 +228,59 @@ end
     accuracy = correct_predictions / length(actual)
 
     @show accuracy
+end
+
+@testset "DecisionTree" begin
+    data = CSV.File("resources/WineQT/WineQT.csv", header=true)
+    df = DataFrame(data)
+
+    train_ratio = 0.7
+    num_samples = nrow(df)  # 获取数据集的总行数
+    train_size = Int(floor(train_ratio * num_samples))  # 计算训练集的大小
+
+    random_indices = randperm(num_samples)
+
+    train_indices = random_indices[1:train_size]  # 前 train_size 个作为训练集
+    test_indices = random_indices[train_size+1:end]  # 剩下的作为测试集
+
+    train_df = df[train_indices, :]
+    test_df = df[test_indices, :]
+end
+
+@testset "TSEN" begin
+
+    # 加载 MNIST 数据集
+    train_x, train_y = MNIST(split=:train)[:]
+    train_x_flattened = reshape(train_x, 28 * 28, 60000)'
+
+    # 从训练集中随机选取样本
+    sample_size = 1000
+    sample_indices = rand(1:size(train_x_flattened, 1), sample_size)  # 修正为一维的索引
+    sample_data = train_x_flattened[sample_indices, :]
+    sample_labels = train_y[sample_indices]
+
+    # 创建 t-SNE 实例并拟合数据
+    tsne_model = DubCmp.Train.TSNE(Matrix{Float32}(sample_data), eta=0.03, tol=1e-3, sigma=0.9)
+    DubCmp.Train.fit!(tsne_model)
+
+    # 有10个标签（0到9）
+    unique_labels = 0:9  # 标签从0到9
+
+    # 创建一个颜色列表，为每个标签指定一个颜色
+    label_colors = [:red, :blue, :green, :yellow, :orange, :purple, :cyan, :magenta, :brown, :black]
+
+    # 将标签映射到颜色
+    colors = [label_colors[l+1] for l in sample_labels]  # sample_labels是标签数组，假设标签从0开始
+
+    # 可视化降维后的数据
+    scatter(tsne_model.Y[:, 1], tsne_model.Y[:, 2],
+        color=colors,  # 为每个标签指定的颜色
+        title="t-SNE on MNIST",
+        xlabel="Dimension 1", ylabel="Dimension 2", 
+        legend=false,
+        markersize=2,  # 设置小点
+        alpha=0.5)     # 设置透明度
+
+    # 保存图像
+    savefig("tsne_plot.png")
 end

@@ -3,4 +3,6 @@ module Train
     include("KDTree.jl")
     include("PLA.jl")
     include("NativeBayes.jl")
+    include("DecisionTree.jl")
+    include("TSNE.jl")
 end
