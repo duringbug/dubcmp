@@ -5,4 +5,5 @@ module Train
     include("NativeBayes.jl")
     include("DecisionTree.jl")
     include("TSNE.jl")
+    include("DubNN.jl")
 end

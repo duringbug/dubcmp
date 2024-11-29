@@ -260,7 +260,7 @@ end
     sample_labels = train_y[sample_indices]
 
     # 创建 t-SNE 实例并拟合数据
-    tsne_model = DubCmp.Train.TSNE(Matrix{Float32}(sample_data), eta=0.03, tol=1e-3, sigma=0.9)
+    tsne_model = DubCmp.Train.TSNE(Matrix{Float32}(sample_data),n_iter=2500, eta=0.03, tol=1e-3, sigma=0.9)
     DubCmp.Train.fit!(tsne_model)
 
     # 有10个标签（0到9）
